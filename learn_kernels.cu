@@ -1,6 +1,6 @@
 #include "learn_kernels.cuh"
 
-__global__ void kMultiplyBySigmoidGrad(float* act, float* target, const unsigned int len) {
+__global__ void kMultiplyBySigmoidGrad(double* act, double* target, const unsigned int len) {
     const unsigned int idx = blockIdx.x * blockDim.x + threadIdx.x;
     const unsigned int numThreads = blockDim.x * gridDim.x;
 

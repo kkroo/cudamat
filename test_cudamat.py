@@ -12,8 +12,8 @@ def teardown():
 def test_reshape():
     m = 256
     n = 1
-    cm1 = np.array(np.random.rand(n, m)*10, dtype=np.float32, order='F')
-    cm2 = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
+    cm1 = np.array(np.random.rand(n, m)*10, dtype=np.float64, order='F')
+    cm2 = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
 
     gm1 = cm.CUDAMatrix(cm1)
     gm2 = cm.CUDAMatrix(cm2)
@@ -30,8 +30,8 @@ def test_reshape():
 def test_T_field():
     m = 256
     n = 128
-    cm1 = np.array(np.random.rand(n, m)*10, dtype=np.float32, order='F')
-    cm2 = np.array(np.random.rand(m, 1)*10, dtype=np.float32, order='F')
+    cm1 = np.array(np.random.rand(n, m)*10, dtype=np.float64, order='F')
+    cm2 = np.array(np.random.rand(m, 1)*10, dtype=np.float64, order='F')
     gm1 = cm.CUDAMatrix(cm1)
     gm2 = cm.CUDAMatrix(cm2)
 
@@ -43,7 +43,7 @@ def test_T_field():
     assert np.max(np.abs(gm.numpy_array - c)) < 10**-2, "Error in CUDAMatrix.dot with TransposedCUDAMatrix exceeded threshold"
 
     # test add_dot
-    cm3 = np.array(np.random.rand(1, n)*10, dtype=np.float32, order='F')
+    cm3 = np.array(np.random.rand(1, n)*10, dtype=np.float64, order='F')
     gm3 = cm.CUDAMatrix(cm3)
     gm3.add_dot(gm2.T, gm1.T)
     c = cm3 + np.dot(cm2.T, cm1.T)
@@ -61,8 +61,8 @@ def test_T_field():
 def test_assign():
     m = 256
     n = 128
-    a = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
     
     m1 = cm.CUDAMatrix(a)
     m2 = cm.CUDAMatrix(b)
@@ -75,7 +75,7 @@ def test_assign():
 def test_assign_scalar():
     m = 256
     n = 128
-    a = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
     
     m1 = cm.CUDAMatrix(a)
 
@@ -90,8 +90,8 @@ def test_get_row_slice():
     start = 11
     end = 54
 
-    a = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.rand(end-start, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.rand(end-start, n)*10, dtype=np.float64, order='F')
     
     c = np.array(a[start:end,:], order='F')
     
@@ -112,8 +112,8 @@ def test_set_row_slice():
     start = 11
     end = 54
 
-    a = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.rand(end-start, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.rand(end-start, n)*10, dtype=np.float64, order='F')
     
     c = a.copy()
     c[start:end,:] = b
@@ -129,8 +129,8 @@ def test_transpose():
     m = 6
     n = 128
 
-    a = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.rand(n, m), dtype=np.float32, order='F')
+    a = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.rand(n, m), dtype=np.float64, order='F')
     
     c = a.copy().T
     
@@ -148,7 +148,7 @@ def test_transpose():
 def test_slice():
     m = 256
     n = 128
-    a = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
     
     c = np.array(a[:,32:64], order='F')
     
@@ -162,9 +162,9 @@ def test_slice():
 def test_add_col_vec():
     m = 250
     n = 120
-    a = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.rand(m, 1)*10, dtype=np.float32, order='F')
-    t = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.rand(m, 1)*10, dtype=np.float64, order='F')
+    t = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
     
     c = a + b
     
@@ -184,9 +184,9 @@ def test_add_col_mult():
     m = 256
     n = 128
     mult = np.pi
-    a = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.rand(m, 1)*10, dtype=np.float32, order='F')
-    t = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.rand(m, 1)*10, dtype=np.float64, order='F')
+    t = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
     
     c = a + mult * b
     
@@ -205,9 +205,9 @@ def test_add_col_mult():
 def test_add_row_vec():
     m = 256
     n = 128
-    a = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.rand(1, n)*10, dtype=np.float32, order='F')
-    t = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.rand(1, n)*10, dtype=np.float64, order='F')
+    t = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
     
     c = a + b
     
@@ -226,9 +226,9 @@ def test_add_row_vec():
 def test_mult_by_col():
     m = 256
     n = 128
-    a = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.rand(m, 1)*10, dtype=np.float32, order='F')
-    t = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.rand(m, 1)*10, dtype=np.float64, order='F')
+    t = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
     
     c = a * b
     
@@ -247,9 +247,9 @@ def test_mult_by_col():
 def test_mult_by_row():
     m = 256
     n = 128
-    a = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.rand(1, n)*10, dtype=np.float32, order='F')
-    t = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.rand(1, n)*10, dtype=np.float64, order='F')
+    t = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
     
     c = a * b
     
@@ -268,9 +268,9 @@ def test_mult_by_row():
 def test_div_by_col():
     m = 256
     n = 128
-    a = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.rand(m, 1)*10, dtype=np.float32, order='F') + 0.1
-    t = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.rand(m, 1)*10, dtype=np.float64, order='F') + 0.1
+    t = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
     
     c = a / b
     
@@ -289,9 +289,9 @@ def test_div_by_col():
 def test_div_by_row():
     m = 256
     n = 128
-    a = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.rand(1, n)*10, dtype=np.float32, order='F') + 0.1
-    t = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.rand(1, n)*10, dtype=np.float64, order='F') + 0.1
+    t = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
     
     c = a / b
     
@@ -310,9 +310,9 @@ def test_div_by_row():
 def test_sum():
     m = 256
     n = 128
-    a = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
-    t1 = np.array(np.random.rand(1, n)*10, dtype=np.float32, order='F')
-    t2 = np.array(np.random.rand(m, 1)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
+    t1 = np.array(np.random.rand(1, n)*10, dtype=np.float64, order='F')
+    t2 = np.array(np.random.rand(m, 1)*10, dtype=np.float64, order='F')
     
     mult = 0.8
     c1 = np.atleast_2d(a.sum(0)) * mult
@@ -341,9 +341,9 @@ def test_sum():
 def test_sum_trans():
     m = 256
     n = 128
-    a = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
-    t1 = np.array(np.random.rand(1, m)*10, dtype=np.float32, order='F')
-    t2 = np.array(np.random.rand(n, 1)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
+    t1 = np.array(np.random.rand(1, m)*10, dtype=np.float64, order='F')
+    t2 = np.array(np.random.rand(n, 1)*10, dtype=np.float64, order='F')
     
     c1 = np.atleast_2d(a.T.sum(0))
     c2 = np.atleast_2d(a.T.sum(1)).T
@@ -372,9 +372,9 @@ def test_sum_trans():
 def test_mean():
     m = 256
     n = 128
-    a = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
-    t1 = np.array(np.random.rand(1, n)*10, dtype=np.float32, order='F')
-    t2 = np.array(np.random.rand(m, 1)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
+    t1 = np.array(np.random.rand(1, n)*10, dtype=np.float64, order='F')
+    t2 = np.array(np.random.rand(m, 1)*10, dtype=np.float64, order='F')
     
     c1 = np.atleast_2d(a.mean(0))
     c2 = np.atleast_2d(a.mean(1)).T
@@ -403,9 +403,9 @@ def test_add_sums():
     m = 256
     n = 128
 
-    a = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
-    t1 = np.array(np.random.rand(m, 1)*10, dtype=np.float32, order='F')
-    t2 = np.array(np.random.rand(1, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
+    t1 = np.array(np.random.rand(m, 1)*10, dtype=np.float64, order='F')
+    t2 = np.array(np.random.rand(1, n)*10, dtype=np.float64, order='F')
 
     mult = np.pi
     beta = 0.7
@@ -430,10 +430,10 @@ def test_add_sums():
 def test_less_than():
     m = 256
     n = 128
-    a = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
-    t1 = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
-    t2 = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
+    t1 = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
+    t2 = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
     v = 0.1
 
     r1 = 1 * (a < b)
@@ -459,10 +459,10 @@ def test_less_than():
 def test_greater_than():
     m = 256
     n = 128
-    a = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
-    t1 = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
-    t2 = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
+    t1 = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
+    t2 = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
     v = 0.1
 
     r1 = 1 * (a > b)
@@ -488,10 +488,10 @@ def test_greater_than():
 def test_minimum():
     m = 256
     n = 128
-    a = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
-    t1 = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
-    t2 = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
+    t1 = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
+    t2 = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
     v = 0.1
 
     r1 = np.minimum(a, b)
@@ -517,10 +517,10 @@ def test_minimum():
 def test_maximum():
     m = 256
     n = 128
-    a = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
-    t1 = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
-    t2 = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
+    t1 = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
+    t2 = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
     v = 0.1
 
     r1 = np.maximum(a, b)
@@ -548,9 +548,9 @@ def test_minmax():
     n = 128
     for op in 'min', 'max', 'argmin', 'argmax':
         for sign in (1, -1):
-            a = np.array(np.random.randn(m, n)*10*sign, dtype=np.float32, order='F')
-            t0 = np.array(np.random.rand(1, n)*10, dtype=np.float32, order='F')
-            t1 = np.array(np.random.rand(m, 1)*10, dtype=np.float32, order='F')
+            a = np.array(np.random.randn(m, n)*10*sign, dtype=np.float64, order='F')
+            t0 = np.array(np.random.rand(1, n)*10, dtype=np.float64, order='F')
+            t1 = np.array(np.random.rand(m, 1)*10, dtype=np.float64, order='F')
            
             r0 = np.atleast_2d(getattr(a, op)(0)) 
             r1 = np.atleast_2d(getattr(a, op)(1)) 
@@ -577,10 +577,10 @@ def test_minmax():
 def test_sign():
     m = 256
     n = 128
-    a = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
     a[0,0] = 0.
     a[0,1] = -0.
-    t = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
+    t = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
 
     c = np.sign(a)
 
@@ -599,8 +599,8 @@ def test_sign():
 def test_sigmoid():
     m = 256
     n = 128
-    a = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
 
     c = 1. / (1. + np.exp(-a))
 
@@ -618,8 +618,8 @@ def test_sigmoid():
 def test_tanh():
     m = 256
     n = 128
-    a = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
 
     c = np.tanh(a)
 
@@ -637,8 +637,8 @@ def test_tanh():
 def test_soft_threshold():
     m = 256
     n = 128
-    a = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
 
     alpha = 0.5
     c = np.sign(a) * np.maximum(0, np.abs(a) - alpha)
@@ -657,8 +657,8 @@ def test_soft_threshold():
 def test_log():
     m = 256
     n = 128
-    a = np.array(np.random.rand(m, n)*10+0.1, dtype=np.float32, order='F')
-    b = np.array(np.random.rand(m, n)*10+0.1, dtype=np.float32, order='F')
+    a = np.array(np.random.rand(m, n)*10+0.1, dtype=np.float64, order='F')
+    b = np.array(np.random.rand(m, n)*10+0.1, dtype=np.float64, order='F')
 
     c = np.log(a)
 
@@ -676,8 +676,8 @@ def test_log():
 def test_exp():
     m = 256
     n = 128
-    a = np.array(np.random.randn(m, n), dtype=np.float32, order='F')
-    b = np.array(np.random.randn(m, n), dtype=np.float32, order='F')
+    a = np.array(np.random.randn(m, n), dtype=np.float64, order='F')
+    b = np.array(np.random.randn(m, n), dtype=np.float64, order='F')
 
     c = np.exp(a)
 
@@ -695,8 +695,8 @@ def test_exp():
 def test_gamma():
     m = 256
     n = 128
-    a = np.array(np.random.rand(m, n)*5, dtype=np.float32, order='F')
-    b = np.array(np.random.rand(m, n)*5, dtype=np.float32, order='F')
+    a = np.array(np.random.rand(m, n)*5, dtype=np.float64, order='F')
+    b = np.array(np.random.rand(m, n)*5, dtype=np.float64, order='F')
 
     from scipy.special import gamma
     c = gamma(a)
@@ -715,8 +715,8 @@ def test_gamma():
 def test_lgamma():
     m = 256
     n = 128
-    a = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
 
     from scipy.special import gammaln
     c = gammaln(a)
@@ -735,8 +735,8 @@ def test_lgamma():
 def test_sqrt():
     m = 256
     n = 128
-    a = np.array(np.random.rand(m, n)*20, dtype=np.float32, order='F')
-    b = np.array(np.random.rand(m, n), dtype=np.float32, order='F')
+    a = np.array(np.random.rand(m, n)*20, dtype=np.float64, order='F')
+    b = np.array(np.random.rand(m, n), dtype=np.float64, order='F')
 
     c = np.sqrt(a)
 
@@ -754,8 +754,8 @@ def test_sqrt():
 def test_pow():
     m = 256
     n = 128
-    a = np.array(np.random.randn(m, n)*20, dtype=np.float32, order='F')
-    b = np.array(np.random.rand(m, n), dtype=np.float32, order='F')
+    a = np.array(np.random.randn(m, n)*20, dtype=np.float64, order='F')
+    b = np.array(np.random.rand(m, n), dtype=np.float64, order='F')
     p = 2
 
     c = a**p
@@ -774,9 +774,9 @@ def test_pow():
 def test_pow_matrix():
     m = 256
     n = 128
-    a = np.array(np.random.rand(m, n)*20, dtype=np.float32, order='F')
-    b = np.array(np.random.rand(m, n), dtype=np.float32, order='F')
-    p = np.array(np.random.randn(m, n), dtype=np.float32, order='F')
+    a = np.array(np.random.rand(m, n)*20, dtype=np.float64, order='F')
+    b = np.array(np.random.rand(m, n), dtype=np.float64, order='F')
+    p = np.array(np.random.randn(m, n), dtype=np.float64, order='F')
 
 
     c = a**p
@@ -796,8 +796,8 @@ def test_pow_matrix():
 def test_reciprocal():
     m = 256
     n = 128
-    a = np.array(np.random.rand(m, n)*10+10**-3, dtype=np.float32, order='F')
-    b = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.rand(m, n)*10+10**-3, dtype=np.float64, order='F')
+    b = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
 
     c = 1. / a
 
@@ -816,8 +816,8 @@ def test_add_mult():
     m = 256
     n = 128
     alpha = np.pi
-    a = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
 
     c = a + np.pi * b
 
@@ -832,8 +832,8 @@ def test_subtract_mult():
     m = 256
     n = 128
     alpha = np.pi
-    a = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
 
     c = a - np.pi * b
 
@@ -847,9 +847,9 @@ def test_subtract_mult():
 def test_add():
     m = 256
     n = 128
-    a = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
-    b = np.array(1.+np.random.rand(m, n)*10, dtype=np.float32, order='F')
-    t = np.array(np.empty((m, n)), dtype=np.float32, order='F')
+    a = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
+    b = np.array(1.+np.random.rand(m, n)*10, dtype=np.float64, order='F')
+    t = np.array(np.empty((m, n)), dtype=np.float64, order='F')
 
     c = a + b
 
@@ -869,9 +869,9 @@ def test_add():
 def test_subtract():
     m = 256
     n = 128
-    a = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
-    b = np.array(1.+np.random.rand(m, n)*10, dtype=np.float32, order='F')
-    t = np.array(np.empty((m, n)), dtype=np.float32, order='F')
+    a = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
+    b = np.array(1.+np.random.rand(m, n)*10, dtype=np.float64, order='F')
+    t = np.array(np.empty((m, n)), dtype=np.float64, order='F')
 
     c = a - b
 
@@ -891,9 +891,9 @@ def test_subtract():
 def test_divide():
     m = 256
     n = 128
-    a = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
-    b = np.array(1.+np.random.rand(m, n)*10, dtype=np.float32, order='F')
-    t = np.array(np.empty((m, n)), dtype=np.float32, order='F')
+    a = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
+    b = np.array(1.+np.random.rand(m, n)*10, dtype=np.float64, order='F')
+    t = np.array(np.empty((m, n)), dtype=np.float64, order='F')
 
     c = a / b
 
@@ -913,9 +913,9 @@ def test_divide():
 def test_mult():
     m = 256
     n = 128
-    a = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
-    t = np.array(np.empty((m, n)), dtype=np.float32, order='F')
+    a = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
+    t = np.array(np.empty((m, n)), dtype=np.float64, order='F')
 
     c = a * b
 
@@ -936,8 +936,8 @@ def test_scalar_mult():
     m = 256
     n = 128
     alpha = np.pi
-    a = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
-    t = np.array(np.empty((m, n)), dtype=np.float32, order='F')
+    a = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
+    t = np.array(np.empty((m, n)), dtype=np.float64, order='F')
 
     c = a * alpha
 
@@ -957,8 +957,8 @@ def test_scalar_div():
     m = 256
     n = 128
     alpha = np.pi
-    a = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
-    t = np.array(np.empty((m, n)), dtype=np.float32, order='F')
+    a = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
+    t = np.array(np.empty((m, n)), dtype=np.float64, order='F')
 
     c = a / alpha
 
@@ -978,8 +978,8 @@ def test_add_scalar():
     m = 256
     n = 128
     alpha = np.pi
-    a = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
-    t = np.array(np.empty((m, n)), dtype=np.float32, order='F')
+    a = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
+    t = np.array(np.empty((m, n)), dtype=np.float64, order='F')
 
     c = a + alpha
 
@@ -999,9 +999,9 @@ def test_dot():
     m = 128
     k = 256
     n = 64
-    a = np.array(np.random.randn(m, k)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.randn(k, n)*10, dtype=np.float32, order='F')
-    c = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.randn(m, k)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.randn(k, n)*10, dtype=np.float64, order='F')
+    c = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
 
     alpha = 2.
     beta = 0.3
@@ -1019,8 +1019,8 @@ def test_dot_trans():
     m = 128
     k = 256
     n = 64
-    a = np.array(np.random.randn(k, m)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.randn(k, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.randn(k, m)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.randn(k, n)*10, dtype=np.float64, order='F')
 
     c = np.dot(a.T, b)
 
@@ -1036,9 +1036,9 @@ def test_add_dot():
     m = 128
     k = 256
     n = 64
-    a = np.array(np.random.randn(m, k)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.randn(k, n)*10, dtype=np.float32, order='F')
-    c = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.randn(m, k)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.randn(k, n)*10, dtype=np.float64, order='F')
+    c = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
 
     mult = 2.1
     beta = 0.8
@@ -1056,8 +1056,8 @@ def test_add_dot():
 def test_vdot():
     m = 64
     n = 64
-    a = np.array(np.random.randn(m, n), dtype=np.float32, order='F')
-    b = np.array(np.random.randn(m, n), dtype=np.float32, order='F')
+    a = np.array(np.random.randn(m, n), dtype=np.float64, order='F')
+    b = np.array(np.random.randn(m, n), dtype=np.float64, order='F')
 
     true_res = np.vdot(a, b)
 
@@ -1072,9 +1072,9 @@ def test_subtract_dot():
     m = 128
     k = 256
     n = 64
-    a = np.array(np.random.randn(m, k)*10, dtype=np.float32, order='F')
-    b = np.array(np.random.randn(k, n)*10, dtype=np.float32, order='F')
-    c = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.randn(m, k)*10, dtype=np.float64, order='F')
+    b = np.array(np.random.randn(k, n)*10, dtype=np.float64, order='F')
+    c = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
 
     res = c - np.dot(a, b)
 
@@ -1089,8 +1089,8 @@ def test_subtract_dot():
 
 def test_random():
     cm.CUDAMatrix.init_random(1)
-    m1 = cm.CUDAMatrix(np.array(np.empty((128,256)), dtype=np.float32, order='F'))
-    m2 = cm.CUDAMatrix(np.array(np.empty((128,256)), dtype=np.float32, order='F'))
+    m1 = cm.CUDAMatrix(np.array(np.empty((128,256)), dtype=np.float64, order='F'))
+    m2 = cm.CUDAMatrix(np.array(np.empty((128,256)), dtype=np.float64, order='F'))
 
     m1.fill_with_rand()
     m1.copy_to_host()
@@ -1103,7 +1103,7 @@ def test_random():
 def test_euclid_norm():
     m = 256
     n = 128
-    a = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
     
     m = cm.CUDAMatrix(a)
 
@@ -1115,7 +1115,7 @@ def test_euclid_norm():
 def test_manhattan_norm():
     m = 256
     n = 128
-    a = np.array(np.random.rand(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.rand(m, n)*10, dtype=np.float64, order='F')
     
     m = cm.CUDAMatrix(a)
 
@@ -1126,7 +1126,7 @@ def test_manhattan_norm():
 
 def test_allfinite():
     a = cm.empty((10, 20)).assign(1).divide(0)  # NaN
-    b = cm.empty((10, 20)).assign(1e20).mult(1e20)  # Inf
+    b = cm.empty((10, 20)).assign(1e1000).mult(1e60)  # Inf
     c = cm.empty((10, 20)).assign(1)  # 1.0
     
     assert (not a.allfinite()) and (not b.allfinite()) and c.allfinite(), "CUDAMatrix.allfinite does not work"
@@ -1136,7 +1136,7 @@ def test_select_columns():
     n = 128
     k = 8
 
-    s = np.array(np.random.randn(m, n), dtype=np.float32, order='F')
+    s = np.array(np.random.randn(m, n), dtype=np.float64, order='F')
     i_l = [0, 1, 2, 3, 5, 10, 12, 20]
     i = np.array(i_l).T[np.newaxis, :]
     t = np.empty((m, k))
@@ -1154,7 +1154,7 @@ def test_select_columns():
 def test_where():
     m = 256
     n = 128
-    a = np.array(np.random.randn(m, n)*10, dtype=np.float32, order='F')
+    a = np.array(np.random.randn(m, n)*10, dtype=np.float64, order='F')
     z = np.zeros_like(a)
     res = np.where(a > 0, a, z);
     

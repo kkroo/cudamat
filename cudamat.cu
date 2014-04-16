@@ -164,7 +164,7 @@ extern int copy_on_device(cudamat* mat1, cudamat* mat2) {
     if (mat1->size[0] != mat2->size[0] || mat1->size[1] != mat2->size[1])
         return ERROR_INCOMPATIBLE_DIMENSIONS;
 
-    cublasScopy(len, mat1->data_device, 1, mat2->data_device, 1);
+    cublasDcopy(len, mat1->data_device, 1, mat2->data_device, 1);
 
     if (check_cublas_error())
         return CUBLAS_ERROR;
@@ -331,7 +331,7 @@ extern int get_vector_slice(cudamat* source, cudamat* target, unsigned int first
 
 /* ------------------------------ Initialization routines ------------------------------ */
 
-extern void init_from_array(cudamat* mat, float* data, int m, int n) {
+extern void init_from_array(cudamat* mat, double* data, int m, int n) {
     mat->data_host = data;
     mat->size[0] = m;
     mat->size[1] = n;
@@ -414,7 +414,7 @@ extern int add_col_vec(cudamat* mat, cudamat* vec, cudamat* target) {
     return 0;
 }
 
-extern int add_col_mult(cudamat* mat, cudamat* vec, cudamat* target, float mult) {
+extern int add_col_mult(cudamat* mat, cudamat* vec, cudamat* target, double mult) {
     unsigned int h = mat->size[0],
                  w = mat->size[1];
 
@@ -588,7 +588,7 @@ extern int less_than(cudamat* mat1, cudamat* mat2, cudamat* target) {
     return 0;
 }
 
-extern int less_than_scalar(cudamat* mat, float val, cudamat* target) {
+extern int less_than_scalar(cudamat* mat, double val, cudamat* target) {
     int len = mat->size[0]*mat->size[1];
 
     if (!mat->on_device || !target->on_device)
@@ -635,7 +635,7 @@ extern int greater_than(cudamat* mat1, cudamat* mat2, cudamat* target) {
     return 0;
 }
 
-extern int greater_than_scalar(cudamat* mat, float val, cudamat* target) {
+extern int greater_than_scalar(cudamat* mat, double val, cudamat* target) {
     int len = mat->size[0]*mat->size[1];
 
     if (!mat->on_device || !target->on_device)
@@ -682,7 +682,7 @@ extern int equals(cudamat* mat1, cudamat* mat2, cudamat* target) {
     return 0;
 }
 
-extern int equals_scalar(cudamat* mat, float val, cudamat* target) {
+extern int equals_scalar(cudamat* mat, double val, cudamat* target) {
     int len = mat->size[0]*mat->size[1];
 
     if (!mat->on_device || !target->on_device)
@@ -728,7 +728,7 @@ extern int minimum(cudamat* mat1, cudamat* mat2, cudamat* target) {
     return 0;
 }
 
-extern int minimum_scalar(cudamat* mat, float val, cudamat* target) {
+extern int minimum_scalar(cudamat* mat, double val, cudamat* target) {
     int len = mat->size[0]*mat->size[1];
 
     if (!mat->on_device || !target->on_device)
@@ -773,7 +773,7 @@ extern int maximum(cudamat* mat1, cudamat* mat2, cudamat* target) {
     return 0;
 }
 
-extern int maximum_scalar(cudamat* mat, float val, cudamat* target) {
+extern int maximum_scalar(cudamat* mat, double val, cudamat* target) {
     int len = mat->size[0]*mat->size[1];
 
     if (!mat->on_device || !target->on_device)
@@ -982,7 +982,7 @@ extern int apply_tanh(cudamat* mat, cudamat* target) {
     return 0;
 }
 
-extern int apply_soft_threshold(cudamat* mat, float alpha, cudamat* target) {
+extern int apply_soft_threshold(cudamat* mat, double alpha, cudamat* target) {
     unsigned int len = mat->size[0] * mat->size[1];
 
     if (!mat->on_device || !target->on_device)
@@ -1141,7 +1141,7 @@ extern int apply_sqrt(cudamat* mat, cudamat* target) {
     return 0;
 }
 
-extern int apply_pow(cudamat* mat, float pow, cudamat* target) {
+extern int apply_pow(cudamat* mat, double pow, cudamat* target) {
     unsigned int len = mat->size[0] * mat->size[1];
 
     if (!mat->on_device || !target->on_device)
@@ -1204,7 +1204,7 @@ extern int reciprocal(cudamat* mat, cudamat* target) {
     return 0;
 }
 
-extern int dot(cudamat* mat1, cudamat* mat2, cudamat* target, float beta, float alpha) {
+extern int dot(cudamat* mat1, cudamat* mat2, cudamat* target, double beta, double alpha) {
     if (!mat1->on_device || !mat2->on_device || !target->on_device)
         return ERROR_NOT_ON_DEVICE;
 
@@ -1217,7 +1217,7 @@ extern int dot(cudamat* mat1, cudamat* mat2, cudamat* target, float beta, float 
         k = get_leading_dimension(mat2),
         n = get_nonleading_dimension(mat2);
 
-    cublasSgemm(get_transpose_char(mat1), get_transpose_char(mat2), 
+    cublasDgemm(get_transpose_char(mat1), get_transpose_char(mat2), 
                 m, n, k,
                 alpha, mat1->data_device, mat1->size[0],
                 mat2->data_device, mat2->size[0],
@@ -1232,9 +1232,9 @@ extern int dot(cudamat* mat1, cudamat* mat2, cudamat* target, float beta, float 
     return 0;
 }
 
-extern float vdot(cudamat* mat1, cudamat* mat2, int* err_code) {
+extern double vdot(cudamat* mat1, cudamat* mat2, int* err_code) {
     int len = mat1->size[0]*mat1->size[1];
-    float res;
+    double res;
 
     if (!mat1->on_device || !mat2->on_device)
         return ERROR_NOT_ON_DEVICE;
@@ -1249,7 +1249,7 @@ extern float vdot(cudamat* mat1, cudamat* mat2, int* err_code) {
         return 0;
     }
 
-    res = cublasSdot(len, mat1->data_device, 1, mat2->data_device, 1);
+    res = cublasDdot(len, mat1->data_device, 1, mat2->data_device, 1);
 
     if (check_cublas_error()) {
         *err_code = CUBLAS_ERROR;
@@ -1262,7 +1262,7 @@ extern float vdot(cudamat* mat1, cudamat* mat2, int* err_code) {
 
 /* Perform the operation mat1 = mat1 + alpha * mat2. mat1 and mat2 must
    have the same transposedness. */
-extern int add_mult(cudamat* mat1, cudamat* mat2, float alpha) {
+extern int add_mult(cudamat* mat1, cudamat* mat2, double alpha) {
     int len = mat1->size[0]*mat1->size[1];
 
     if (!mat1->on_device || !mat2->on_device)
@@ -1274,7 +1274,7 @@ extern int add_mult(cudamat* mat1, cudamat* mat2, float alpha) {
     if (mat1->size[0] != mat2->size[0] || mat1->size[1] != mat2->size[1])
         return ERROR_INCOMPATIBLE_DIMENSIONS;
 
-    cublasSaxpy(len, alpha, mat2->data_device, 1, mat1->data_device, 1);
+    cublasDaxpy(len, alpha, mat2->data_device, 1, mat1->data_device, 1);
 
     if (check_cublas_error())
         return CUBLAS_ERROR;
@@ -1296,7 +1296,7 @@ extern int add_elementwise(cudamat* mat1, cudamat* mat2, cudamat* target) {
         return ERROR_INCOMPATIBLE_DIMENSIONS;
 
     if (mat1 == target) {
-        cublasSaxpy(len, 1, mat2->data_device, 1, mat1->data_device, 1);
+        cublasDaxpy(len, 1, mat2->data_device, 1, mat1->data_device, 1);
  
         if (check_cublas_error())
             return CUBLAS_ERROR;
@@ -1387,7 +1387,7 @@ extern int mult_elementwise(cudamat* mat1, cudamat* mat2, cudamat* target) {
     return 0;
 }
 
-extern int assign_scalar(cudamat* mat, float alpha) {
+extern int assign_scalar(cudamat* mat, double alpha) {
     int len = mat->size[0]*mat->size[1];
 
     if (!mat->on_device)
@@ -1404,7 +1404,7 @@ extern int assign_scalar(cudamat* mat, float alpha) {
     return 0;
 }
 
-extern int mult_by_scalar(cudamat* mat, float alpha, cudamat* target) {
+extern int mult_by_scalar(cudamat* mat, double alpha, cudamat* target) {
     int len = mat->size[0]*mat->size[1];
 
     if (!mat->on_device || !target->on_device)
@@ -1414,7 +1414,7 @@ extern int mult_by_scalar(cudamat* mat, float alpha, cudamat* target) {
         return ERROR_INCOMPATIBLE_DIMENSIONS;
 
     if (mat == target) {
-        cublasSscal(len, alpha, mat->data_device, 1);
+        cublasDscal(len, alpha, mat->data_device, 1);
  
         if (check_cublas_error())
             return CUBLAS_ERROR;
@@ -1432,7 +1432,7 @@ extern int mult_by_scalar(cudamat* mat, float alpha, cudamat* target) {
     return 0;
 }
 
-extern int divide_by_scalar(cudamat* mat, float alpha, cudamat* target) {
+extern int divide_by_scalar(cudamat* mat, double alpha, cudamat* target) {
     int len = mat->size[0]*mat->size[1];
 
     if (!mat->on_device || !target->on_device)
@@ -1452,7 +1452,7 @@ extern int divide_by_scalar(cudamat* mat, float alpha, cudamat* target) {
     return 0;
 }
 
-extern int add_scalar(cudamat* mat, float alpha, cudamat* target) {
+extern int add_scalar(cudamat* mat, double alpha, cudamat* target) {
     int len = mat->size[0]*mat->size[1];
 
     if (!mat->on_device || !target->on_device)
@@ -1472,7 +1472,7 @@ extern int add_scalar(cudamat* mat, float alpha, cudamat* target) {
     return 0;
 }
 
-extern float euclid_norm(cudamat* mat, int* err_code) {
+extern double euclid_norm(cudamat* mat, int* err_code) {
     int len = mat->size[0]*mat->size[1];
 
     if (!mat->on_device) {
@@ -1480,7 +1480,7 @@ extern float euclid_norm(cudamat* mat, int* err_code) {
         return -1.;
     }
 
-    float res = cublasSnrm2(len, mat->data_device, 1);
+    double res = cublasDnrm2(len, mat->data_device, 1);
 
     if (check_cublas_error()) {
         *err_code = CUBLAS_ERROR;
@@ -1491,7 +1491,7 @@ extern float euclid_norm(cudamat* mat, int* err_code) {
     }
 }
 
-extern float manhattan_norm(cudamat* mat, int* err_code) {
+extern double manhattan_norm(cudamat* mat, int* err_code) {
     int len = mat->size[0]*mat->size[1];
 
     if (!mat->on_device) {
@@ -1499,7 +1499,7 @@ extern float manhattan_norm(cudamat* mat, int* err_code) {
         return -1.;
     }
 
-    float res = cublasSasum(len, mat->data_device, 1);
+    double res = cublasDasum(len, mat->data_device, 1);
 
     if (check_cublas_error()) {
         *err_code = CUBLAS_ERROR;

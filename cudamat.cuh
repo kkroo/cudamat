@@ -11,8 +11,8 @@
 #define ERROR_UNSUPPORTED -9
 
 struct cudamat {
-    float* data_host;
-    float* data_device;
+    double* data_host;
+    double* data_device;
     int on_device;
     int on_host;
     int size[2];

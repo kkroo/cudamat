@@ -77,11 +77,11 @@ _cudamat.mult_by_scalar.restype = ct.c_int
 _cudamat.divide_by_scalar.restype = ct.c_int
 _cudamat.add_scalar.restype = ct.c_int
 
-_cudamat.euclid_norm.restype = ct.c_float
-_cudamat.manhattan_norm.restype = ct.c_float
+_cudamat.euclid_norm.restype = ct.c_double
+_cudamat.manhattan_norm.restype = ct.c_double
 _cudamat.selectRows.restype = ct.c_int
 _cudamat.setSelectedRows.restype = ct.c_int
-_cudamat.vdot.restype = ct.c_float
+_cudamat.vdot.restype = ct.c_double
 _cudamat.dot.restype = ct.c_int
 
 _cudamat.where.restype = ct.c_int
@@ -132,8 +132,8 @@ def generate_exception(err_code):
         
 
 class cudamat(ct.Structure):
-    _fields_ = [('data_host', ct.POINTER(ct.c_float)),
-                ('data_device', ct.POINTER(ct.c_float)),
+    _fields_ = [('data_host', ct.POINTER(ct.c_double)),
+                ('data_device', ct.POINTER(ct.c_double)),
                 ('on_device', ct.c_int),
                 ('on_host', ct.c_int),
                 ('size', ct.c_int * 2),
@@ -164,13 +164,13 @@ class CUDAMatrix(object):
         the GPU. If the copy_to_device flag is set to True, the GPU matrix is
         initialized with the given ndarray. If the copy_on_host flag is set to
         True, a copy of the matrix will be created in host memory even if the
-        matrix is of the correct type (float32, Fortran-contiguous order).
+        matrix is of the correct type (float64, Fortran-contiguous order).
         If array is not an ndarray, it must be a cudamat structure (typically
         the user will never use this way of calling __init__).
         """
 
         if type(array) in [np.ndarray, np.memmap]:
-            # Convert array to float32 in FORTRAN order
+            # Convert array to float64 in FORTRAN order
             array = reformat(array, copy = copy_on_host)
 
             # Initialize as a ndarray-tied matrix.
@@ -179,7 +179,7 @@ class CUDAMatrix(object):
             self.p_mat = ct.pointer(self.mat)
             self.numpy_array = array
 
-            _cudamat.init_from_array(self.p_mat, array.ctypes.data_as(ct.POINTER(ct.c_float)), ct.c_int(array.shape[0]), ct.c_int(array.shape[1]))
+            _cudamat.init_from_array(self.p_mat, array.ctypes.data_as(ct.POINTER(ct.c_double)), ct.c_int(array.shape[0]), ct.c_int(array.shape[1]))
             if copy_to_device:
                 err_code = _cudamat.copy_to_device(self.p_mat)
                 if err_code:
@@ -277,8 +277,8 @@ class CUDAMatrix(object):
             m = self.mat.size[0]
             n = self.mat.size[1]
 
-            self.numpy_array = np.empty((m, n), dtype=np.float32, order = 'F')
-            self.mat.data_host = self.numpy_array.ctypes.data_as(ct.POINTER(ct.c_float))
+            self.numpy_array = np.empty((m, n), dtype=np.float64, order = 'F')
+            self.mat.data_host = self.numpy_array.ctypes.data_as(ct.POINTER(ct.c_double))
 
             self.mat.on_host = 1
 
@@ -296,7 +296,7 @@ class CUDAMatrix(object):
         
         if include_host and self.mat.on_host:
             new_mat.numpy_array = self.numpy_array.copy()
-            new_mat.mat.data_host = new_mat.numpy_array.ctypes.data_as(ct.POINTER(ct.c_float))
+            new_mat.mat.data_host = new_mat.numpy_array.ctypes.data_as(ct.POINTER(ct.c_double))
             new_mat.mat.on_host = 1
         
         return new_mat
@@ -308,7 +308,7 @@ class CUDAMatrix(object):
         if isinstance(val, CUDAMatrix):
             err_code = _cudamat.copy_on_device(val.p_mat, self.p_mat)
         elif isinstance(val, (int, float)):
-            err_code = _cudamat.assign_scalar(self.p_mat, ct.c_float(val))
+            err_code = _cudamat.assign_scalar(self.p_mat, ct.c_double(val))
         else:
             raise ValueError, "Assigned value must be of type CUDAMatrix, int, or float."
             
@@ -359,7 +359,7 @@ class CUDAMatrix(object):
         # reproduce the slice on the host as well (if requested)        
         if include_host and self.mat.on_host:
             new_mat.numpy_array = self.numpy_array[:, first_col:last_col]
-            new_mat.mat.data_host = new_mat.numpy_array.ctypes.data_as(ct.POINTER(ct.c_float))
+            new_mat.mat.data_host = new_mat.numpy_array.ctypes.data_as(ct.POINTER(ct.c_double))
             new_mat.mat.on_host = 1
 
         return new_mat
@@ -476,7 +476,7 @@ class CUDAMatrix(object):
         if not target:
             target = self
 
-        err_code = _cudamat.add_col_mult(self.p_mat, vec.p_mat, target.p_mat, ct.c_float(mult))
+        err_code = _cudamat.add_col_mult(self.p_mat, vec.p_mat, target.p_mat, ct.c_double(mult))
         if err_code:
             raise generate_exception(err_code)
 
@@ -597,7 +597,7 @@ class CUDAMatrix(object):
             left = mat
             right = CUDAMatrix.ones.slice(0, n)
 
-        err_code = _cudamat.dot(left.p_mat, right.p_mat, self.p_mat, ct.c_float(beta), ct.c_float(mult))
+        err_code = _cudamat.dot(left.p_mat, right.p_mat, self.p_mat, ct.c_double(beta), ct.c_double(mult))
         if err_code:
             raise generate_exception(err_code)
 
@@ -612,7 +612,7 @@ class CUDAMatrix(object):
             target = self
 
         if isinstance(val, (int, float)):
-            err_code = _cudamat.less_than_scalar(self.p_mat, ct.c_float(val), target.p_mat)
+            err_code = _cudamat.less_than_scalar(self.p_mat, ct.c_double(val), target.p_mat)
         else:
             err_code = _cudamat.less_than(self.p_mat, val.p_mat, target.p_mat)
 
@@ -630,7 +630,7 @@ class CUDAMatrix(object):
             target = self
 
         if isinstance(val, (int, float)):
-            err_code = _cudamat.greater_than_scalar(self.p_mat, ct.c_float(val), target.p_mat)
+            err_code = _cudamat.greater_than_scalar(self.p_mat, ct.c_double(val), target.p_mat)
         else:
             err_code = _cudamat.greater_than(self.p_mat, val.p_mat, target.p_mat)
 
@@ -648,7 +648,7 @@ class CUDAMatrix(object):
             target = self
 
         if isinstance(val, (int, float)):
-            err_code = _cudamat.equals_scalar(self.p_mat, ct.c_float(val), target.p_mat)
+            err_code = _cudamat.equals_scalar(self.p_mat, ct.c_double(val), target.p_mat)
         else:
             err_code = _cudamat.equals(self.p_mat, val.p_mat, target.p_mat)
 
@@ -667,7 +667,7 @@ class CUDAMatrix(object):
             target = self
 
         if isinstance(val, (int, float)):
-            err_code = _cudamat.minimum_scalar(self.p_mat, ct.c_float(val), target.p_mat)
+            err_code = _cudamat.minimum_scalar(self.p_mat, ct.c_double(val), target.p_mat)
         else:
             err_code = _cudamat.minimum(self.p_mat, val.p_mat, target.p_mat)
 
@@ -686,7 +686,7 @@ class CUDAMatrix(object):
             target = self
 
         if isinstance(val, (int, float)):
-            err_code = _cudamat.maximum_scalar(self.p_mat, ct.c_float(val), target.p_mat)
+            err_code = _cudamat.maximum_scalar(self.p_mat, ct.c_double(val), target.p_mat)
         else:
             err_code = _cudamat.maximum(self.p_mat, val.p_mat, target.p_mat)
 
@@ -853,7 +853,7 @@ class CUDAMatrix(object):
         Self is scaled by beta before adding anything.
         """
 
-        err_code = _cudamat.dot(m1.p_mat, m2.p_mat, self.p_mat, ct.c_float(beta), ct.c_float(mult))
+        err_code = _cudamat.dot(m1.p_mat, m2.p_mat, self.p_mat, ct.c_double(beta), ct.c_double(mult))
         if err_code:
             raise generate_exception(err_code)
 
@@ -872,7 +872,7 @@ class CUDAMatrix(object):
         Add multiple of mat2 to the matrix.
         """
 
-        err_code = _cudamat.add_mult(self.p_mat, mat2.p_mat, ct.c_float(alpha))
+        err_code = _cudamat.add_mult(self.p_mat, mat2.p_mat, ct.c_double(alpha))
         if err_code:
             raise generate_exception(err_code)
 
@@ -883,7 +883,7 @@ class CUDAMatrix(object):
         Subtract a multiple of mat2 from the matrix.
         """
 
-        err_code = _cudamat.add_mult(self.p_mat, mat2.p_mat, ct.c_float(-1. * alpha))
+        err_code = _cudamat.add_mult(self.p_mat, mat2.p_mat, ct.c_double(-1. * alpha))
         if err_code:
             raise generate_exception(err_code)
 
@@ -899,7 +899,7 @@ class CUDAMatrix(object):
         if isinstance(val, CUDAMatrix):
             err_code = _cudamat.add_elementwise(self.p_mat, val.p_mat, target.p_mat)
         elif isinstance(val, (int, float)):
-            err_code = _cudamat.add_scalar(self.p_mat, ct.c_float(val), target.p_mat)
+            err_code = _cudamat.add_scalar(self.p_mat, ct.c_double(val), target.p_mat)
         else:
             raise ValueError, "Value must be of type CUDAMatrix, int, or float."
 
@@ -918,7 +918,7 @@ class CUDAMatrix(object):
         if isinstance(val, CUDAMatrix):
             err_code = _cudamat.subtract_elementwise(self.p_mat, val.p_mat, target.p_mat)
         elif isinstance(val, (int, float)):
-            err_code = _cudamat.add_scalar(self.p_mat, ct.c_float(-1*val), target.p_mat)
+            err_code = _cudamat.add_scalar(self.p_mat, ct.c_double(-1*val), target.p_mat)
         else:
             raise ValueError, "Value must be of type CUDAMatrix, int, or float."
 
@@ -937,7 +937,7 @@ class CUDAMatrix(object):
         if isinstance(val, CUDAMatrix):
             err_code = _cudamat.divide_elementwise(self.p_mat, val.p_mat, target.p_mat)
         elif isinstance(val, (int, float)):
-            err_code = _cudamat.divide_by_scalar(self.p_mat, ct.c_float(val), target.p_mat)
+            err_code = _cudamat.divide_by_scalar(self.p_mat, ct.c_double(val), target.p_mat)
         else:
             raise ValueError, "Value must be of type CUDAMatrix, int, or float."
 
@@ -956,7 +956,7 @@ class CUDAMatrix(object):
         if isinstance(val, CUDAMatrix):
             err_code = _cudamat.mult_elementwise(self.p_mat, val.p_mat, target.p_mat)
         elif isinstance(val, (int, float)):
-            err_code = _cudamat.mult_by_scalar(self.p_mat, ct.c_float(val), target.p_mat)
+            err_code = _cudamat.mult_by_scalar(self.p_mat, ct.c_double(val), target.p_mat)
         else:
             raise ValueError, "Value must be of type CUDAMatrix, int, or float."
 
@@ -971,7 +971,7 @@ class CUDAMatrix(object):
         Assign scalar alpha to every element of the matrix.
         """
 
-        err_code = _cudamat.assign_scalar(self.p_mat, ct.c_float(alpha))
+        err_code = _cudamat.assign_scalar(self.p_mat, ct.c_double(alpha))
         if err_code:
             raise generate_exception(err_code)
 
@@ -986,7 +986,7 @@ class CUDAMatrix(object):
         if not target:
             target = self
 
-        err_code = _cudamat.mult_by_scalar(self.p_mat, ct.c_float(alpha), target.p_mat)
+        err_code = _cudamat.mult_by_scalar(self.p_mat, ct.c_double(alpha), target.p_mat)
         if err_code:
             raise generate_exception(err_code)
 
@@ -1002,7 +1002,7 @@ class CUDAMatrix(object):
         if not target:
             target = self
 
-        err_code = _cudamat.divide_by_scalar(self.p_mat, ct.c_float(alpha), target.p_mat)
+        err_code = _cudamat.divide_by_scalar(self.p_mat, ct.c_double(alpha), target.p_mat)
         if err_code:
             raise generate_exception(err_code)
 
@@ -1017,7 +1017,7 @@ class CUDAMatrix(object):
         if not target:
             target = self
 
-        err_code = _cudamat.add_scalar(self.p_mat, ct.c_float(alpha), target.p_mat)
+        err_code = _cudamat.add_scalar(self.p_mat, ct.c_double(alpha), target.p_mat)
         if err_code:
             raise generate_exception(err_code)
 
@@ -1059,7 +1059,7 @@ class CUDAMatrix(object):
     def select_columns(self, indices, target):
         """
         copies some columns of self into target.
-        <indices> must be a row vector. Its elements are float32's representing integers, e.g. "34.0" means the integer "34".
+        <indices> must be a row vector. Its elements are float64's representing integers, e.g. "34.0" means the integer "34".
         after this call, for all r,c, target[r,c]=self[r,indices[c]].
         This returns target.
         Negative indices are interpreted in the usual Python way: all elements of <indices> had better be in the range [-self.shape[1], self.shape[1]-1].
@@ -1076,7 +1076,7 @@ class CUDAMatrix(object):
     def set_selected_columns(self, indices, source):
         """
         copies all columns of source into some columns of self.
-        <indices> must be a row vector. Its elements are float32's representing
+        <indices> must be a row vector. Its elements are float64's representing
         integers, e.g. "34.0" means the integer "34". after this call, for all
         r,c, self[r,indices[c]]=source[r,c]. This returns self.
         Negative indices are interpreted in the usual Python way: all elements
@@ -1133,7 +1133,7 @@ def sum(mat, axis, target = None, mult = 1.):
         if not target:
             target = empty((m, 1))
 
-    err_code = _cudamat.dot(left.p_mat, right.p_mat, target.p_mat, ct.c_float(0.), ct.c_float(mult))
+    err_code = _cudamat.dot(left.p_mat, right.p_mat, target.p_mat, ct.c_double(0.), ct.c_double(mult))
     if err_code:
         raise generate_exception(err_code)
 
@@ -1162,7 +1162,7 @@ def dot(m1, m2, target = None, beta = 0., alpha = 1.):
 
         target = empty((m, n))
 
-    err_code = _cudamat.dot(m1.p_mat, m2.p_mat, target.p_mat, ct.c_float(beta), ct.c_float(alpha))
+    err_code = _cudamat.dot(m1.p_mat, m2.p_mat, target.p_mat, ct.c_double(beta), ct.c_double(alpha))
     if err_code:
         raise generate_exception(err_code)
 
@@ -1219,7 +1219,7 @@ def soft_threshold(mat, alpha, target = None):
     if not target:
         target = mat
 
-    err_code = _cudamat.apply_soft_threshold(mat.p_mat, ct.c_float(alpha), target.p_mat)
+    err_code = _cudamat.apply_soft_threshold(mat.p_mat, ct.c_double(alpha), target.p_mat)
     if err_code:
         raise generate_exception(err_code)
 
@@ -1336,7 +1336,7 @@ def pow(mat, p, target = None):
     if isinstance(p, CUDAMatrix):
         err_code = _cudamat.apply_pow_matrix(mat.p_mat, p.p_mat, target.p_mat)
     elif isinstance(p, (int, float)):
-        err_code = _cudamat.apply_pow(mat.p_mat, ct.c_float(p), target.p_mat)
+        err_code = _cudamat.apply_pow(mat.p_mat, ct.c_double(p), target.p_mat)
     else:
         raise ValueError, "Value must be of type CUDAMatrix, int, or float."
 
@@ -1364,11 +1364,11 @@ def cuda_sync_threads():
 
 def reformat(array, copy = True):
     """
-    Returns array as a float32 array in FORTRAN order.
+    Returns array as a float64 array in FORTRAN order.
     If copy is set to False, the array will only be copied if it is not already
     in the correct format.
     """
-    return np.array(array, dtype=np.float32, order='F', copy=copy)
+    return np.array(array, dtype=np.float64, order='F', copy=copy)
 
 def cuda_set_device(dev_id):
     """
@@ -1385,7 +1385,7 @@ def cublas_init():
     """
 
     _cudamat.cublas_init()
-    CUDAMatrix.ones = CUDAMatrix(np.ones((MAX_ONES, 1), dtype=np.float32, order = 'F'))
+    CUDAMatrix.ones = CUDAMatrix(np.ones((MAX_ONES, 1), dtype=np.float64, order = 'F'))
 
 init = cublas_init
 
